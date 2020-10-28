@@ -2,6 +2,7 @@ package agenda.dao;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,20 +37,73 @@ public class ContatoDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			//para fechar as minhas conexões
+			// para fechar as minhas conexões
 			try {
-				if(ps!= null) {
+				if (ps != null) {
 					ps.close();
-				}if(conn!=null) {
+				}
+				if (conn != null) {
 					conn.close();
 				}
-				
-			}catch (Exception e){
+
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
 	}
-	
 
-}
+	public List<Contato> listarContato(){
+		
+		String sql = "SELECT * FROM contatos";
+		
+		List<Contato> contatos = new ArrayList<>();
+		
+		Connection conn = null;
+		PreparedStatement ps = null;
+		
+		//Classe que vai recuperar os dados do meu banco. Nosso SELECT
+		ResultSet rs = null;
+		
+		try {
+			conn = ConnectionFactory.createConnectionMySQL();
+			ps = (PreparedStatement) conn.prepareStatement(sql);
+			
+			rs = ps.executeQuery();
+			
+			while(rs.next()) {
+				
+				Contato contato = new Contato();
+				
+				//Recuperar o id
+				contato.setId_contatos(rs.getInt("id_contatos"));
+				
+				//Recuperar o nome
+				contato.setNome(rs.getString("nome"));
+				
+				//Recuperar o idade
+				contato.setIdade(rs.getInt("idade"));
+				
+				//Recuperar o data
+				contato.setDataCadastro(rs.getDate("dataCadastro"));
+				
+				contatos.add(contato);
+			}
+		}catch(Exception e) {
+				e.printStackTrace();
+			}finally {
+				try {
+					if(rs!=null) {
+						rs.close();
+					}if(ps!=null) {
+						ps.close();
+					}if(conn!=null){
+						conn.close();
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}				
+			return contatos;			
+		}	
+	}
